@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Games: Tic Tac Toe & Wumpus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+    <div class="container">
+        <h1>Games</h1>
+        <nav>
+            <button id="btn-tictactoe">Tic Tac Toe</button>
+            <button id="btn-wumpus">Wumpus Game</button>
+        </nav>
+
+        <section id="tictactoe-section">
+            <h2>Tic Tac Toe</h2>
+            <div>
+                <label for="player-symbol">Choose your symbol:</label>
+                <select id="player-symbol">
+                    <option value="X" selected>X</option>
+                    <option value="O">O</option>
+                </select>
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="hard" selected>Hard</option>
+                </select>
+                <button id="apply-options">Apply</button>
+            </div>
+            <div id="board" class="board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+            <button id="reset">Reset Game</button>
+            <div id="message"></div>
+            <div id="scoreboard">
+                <p>Player Score: <span id="player-score">0</span></p>
+                <p>AI Score: <span id="ai-score">0</span></p>
+            </div>
+        </section>
+
+        <section id="wumpus-section" style="display:none;">
+            <h2>Wumpus Game</h2>
+            <div id="wumpus-status"></div>
+            <div id="wumpus-grid" class="wumpus-grid"></div>
+            <div>
+                <button class="wumpus-move" data-direction="up">Move Up</button>
+                <button class="wumpus-move" data-direction="down">Move Down</button>
+                <button class="wumpus-move" data-direction="left">Move Left</button>
+                <button class="wumpus-move" data-direction="right">Move Right</button>
+            </div>
+            <div>
+                <button class="wumpus-shoot" data-direction="up">Shoot Up</button>
+                <button class="wumpus-shoot" data-direction="down">Shoot Down</button>
+                <button class="wumpus-shoot" data-direction="left">Shoot Left</button>
+                <button class="wumpus-shoot" data-direction="right">Shoot Right</button>
+            </div>
+            <button id="wumpus-reset">Reset Wumpus Game</button>
+        </section>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
