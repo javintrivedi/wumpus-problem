@@ -143,7 +143,7 @@ class WumpusGame:
         while self.wumpus_pos == self.player_pos:
             self.wumpus_pos = (random.randint(0, self.size-1), random.randint(0, self.size-1))
         self.pits = set()
-        while len(self.pits) < 10:
+        while len(self.pits) < 3:
             pit = (random.randint(0, self.size-1), random.randint(0, self.size-1))
             if pit != self.player_pos and pit != self.wumpus_pos:
                 self.pits.add(pit)
@@ -154,9 +154,10 @@ class WumpusGame:
         self.is_alive = True
         self.is_wumpus_alive = True
         self.arrows = 1
+        self.game_over = False
 
     def move_player(self, direction):
-        if not self.is_alive:
+        if not self.is_alive or self.game_over:
             return
         x, y = self.player_pos
         if direction == 'up' and x > 0:
@@ -173,13 +174,16 @@ class WumpusGame:
     def check_current_position(self):
         if self.player_pos == self.wumpus_pos and self.is_wumpus_alive:
             self.is_alive = False
+            self.game_over = True
         elif self.player_pos in self.pits:
             self.is_alive = False
+            self.game_over = True
         elif self.player_pos == self.gold_pos:
             self.has_gold = True
+            self.game_over = True
 
     def shoot_arrow(self, direction):
-        if self.arrows <= 0 or not self.is_alive:
+        if self.arrows <= 0 or not self.is_alive or self.game_over:
             return False
         self.arrows -= 1
         x, y = self.player_pos
@@ -187,60 +191,62 @@ class WumpusGame:
             for i in range(x-1, -1, -1):
                 if (i, y) == self.wumpus_pos:
                     self.is_wumpus_alive = False
+                    self.game_over = True
                     return True
         elif direction == 'down':
             for i in range(x+1, self.size):
                 if (i, y) == self.wumpus_pos:
                     self.is_wumpus_alive = False
+                    self.game_over = True
                     return True
         elif direction == 'left':
             for j in range(y-1, -1, -1):
                 if (x, j) == self.wumpus_pos:
                     self.is_wumpus_alive = False
+                    self.game_over = True
                     return True
         elif direction == 'right':
             for j in range(y+1, self.size):
                 if (x, j) == self.wumpus_pos:
                     self.is_wumpus_alive = False
+                    self.game_over = True
                     return True
         return False
 
-    def get_adjacent_cells(self, pos):
-        x, y = pos
-        adj = []
-        if x > 0:
-            adj.append((x-1, y))
-        if x < self.size - 1:
-            adj.append((x+1, y))
-        if y > 0:
-            adj.append((x, y-1))
-        if y < self.size - 1:
-            adj.append((x, y+1))
-        return adj
-
     def get_status(self):
-        # Determine breeze and stinky smell based on adjacent pits and wumpus
-        breeze = False
-        stinky = False
-        adj_cells = self.get_adjacent_cells(self.player_pos)
-        for cell in adj_cells:
-            if cell in self.pits:
-                breeze = True
-            if cell == self.wumpus_pos and self.is_wumpus_alive:
-                stinky = True
-
+        # When game is over, reveal all pits and wumpus and gold
+        reveal_all = self.game_over
+        pits_list = list(self.pits) if reveal_all else []
+        wumpus_pos = None if (self.is_wumpus_alive and not reveal_all) else self.wumpus_pos
+        gold_pos = None if (not self.has_gold and not reveal_all) else self.gold_pos
+        # Breeze and stinky smell detection
+        breeze = self.is_adjacent_to_pit(self.player_pos)
+        stinky = self.is_adjacent_to_wumpus(self.player_pos) and self.is_wumpus_alive
         return {
             'player_pos': self.player_pos,
-            'wumpus_pos': self.wumpus_pos if not self.is_wumpus_alive else None,
-            'pits': [],  # pits are hidden
-            'gold_pos': self.gold_pos if not self.has_gold else None,
+            'wumpus_pos': wumpus_pos,
+            'pits': pits_list,
+            'gold_pos': gold_pos,
             'has_gold': self.has_gold,
             'is_alive': self.is_alive,
             'is_wumpus_alive': self.is_wumpus_alive,
             'arrows': self.arrows,
             'breeze': breeze,
-            'stinky': stinky
+            'stinky': stinky,
+            'game_over': self.game_over
         }
+
+    def is_adjacent_to_pit(self, pos):
+        x, y = pos
+        for pit in self.pits:
+            if abs(pit[0] - x) + abs(pit[1] - y) == 1:
+                return True
+        return False
+
+    def is_adjacent_to_wumpus(self, pos):
+        x, y = pos
+        wx, wy = self.wumpus_pos
+        return abs(wx - x) + abs(wy - y) == 1
 
 wumpus_game = WumpusGame()
 
@@ -263,6 +269,3 @@ def wumpus_shoot():
     direction = data.get('direction')
     result = wumpus_game.shoot_arrow(direction)
     return jsonify({'status': 'shot', 'hit': result, 'game': wumpus_game.get_status()})
-
-if __name__ == '__main__':
-    app.run(debug=True)
