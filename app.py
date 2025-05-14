@@ -269,3 +269,6 @@ def wumpus_shoot():
     direction = data.get('direction')
     result = wumpus_game.shoot_arrow(direction)
     return jsonify({'status': 'shot', 'hit': result, 'game': wumpus_game.get_status()})
+
+if __name__ == '__main__':
+    app.run(debug=True)
