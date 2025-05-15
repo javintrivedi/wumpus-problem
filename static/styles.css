@@ -5,6 +5,25 @@
     text-align: center;
 }
 
+body {
+  background: linear-gradient(135deg, #ff6a00, #ee0979, #00c3ff, #43e97b, #38f9d7, #fa8bff, #f9d423);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  min-height: 100vh;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .board {
     display: grid;
     grid-template-columns: repeat(3, 100px);
